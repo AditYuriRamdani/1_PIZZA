@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER
+  PELAYAN
+  KOKI
+  KASIR
+}
+
+enum TableStatus {
+  TERSEDIA
+  TERISI
+  DIPESAN
+}
+
+enum OrderStatus {
+  MENUNGGU
+  DIPROSES
+  SIAP_DISAJIKAN
+  SELESAI
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  role     Role
+  
+  ordersHandled       Order[]       @relation("PelayanOrders")
+  transactionsHandled Transaction[] @relation("KasirTransactions")
+}
+
+model Table {
+  id           Int         @id @default(autoincrement())
+  table_number Int         @unique
+  status       TableStatus @default(TERSEDIA)
+  
+  reservations Reservation[]
+  orders       Order[]
+}
+
+model Reservation {
+  id            Int      @id @default(autoincrement())
+  customer_name String
+  phone         String
+  date_time     DateTime
+  guest_count   Int
+  status        String
+  table_id      Int
+  table         Table    @relation(fields: [table_id], references: [id])
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  menus Menu[]
+}
+
+model Menu {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String
+  price        Float
+  image_url    String?
+  is_available Boolean  @default(true)
+  category_id  Int
+  category     Category @relation(fields: [category_id], references: [id])
+  
+  order_items OrderItem[]
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  table_id   Int
+  table      Table       @relation(fields: [table_id], references: [id])
+  user_id    Int
+  pelayan    User        @relation("PelayanOrders", fields: [user_id], references: [id])
+  status     OrderStatus @default(MENUNGGU)
+  created_at DateTime    @default(now())
+  
+  items       OrderItem[]
+  Transaction Transaction?
+}
+
+model OrderItem {
+  id       Int   @id @default(autoincrement())
+  order_id Int
+  order    Order @relation(fields: [order_id], references: [id])
+  menu_id  Int
+  menu     Menu  @relation(fields: [menu_id], references: [id])
+  quantity Int
+}
+
+model Transaction {
+  id               Int      @id @default(autoincrement())
+  transaction_code String   @unique
+  order_id         Int      @unique
+  order            Order    @relation(fields: [order_id], references: [id])
+  user_id          Int
+  kasir            User     @relation("KasirTransactions", fields: [user_id], references: [id])
+  total_amount     Float
+  payment_method   String
+  paid_at          DateTime @default(now())
+}
