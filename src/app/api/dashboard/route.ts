@@ -13,7 +13,7 @@ export async function GET() {
     });
 
     const totalRevenue = transactions.reduce(
-      (sum, trx) => sum + trx.total_amount,
+      (sum: number, trx: any) => sum + trx.total_amount,
       0,
     );
 
@@ -38,7 +38,7 @@ export async function GET() {
 
     // Mengambil nama menu berdasarkan ID dari hasil groupBy
     const topMenus = await Promise.all(
-      topItems.map(async (item) => {
+      topItems.map(async (item: any) => {
         const menu = await prisma.menu.findUnique({
           where: { id: item.menu_id },
         });
