@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const newTransaction = await prisma.$transaction(async (tx) => {
+    const newTransaction = await prisma.$transaction(async (tx: any) => {
       // 1. Buat record Transaksi
       const transaction = await tx.transaction.create({
         data: {
