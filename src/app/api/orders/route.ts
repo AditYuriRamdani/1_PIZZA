@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const newOrder = await prisma.$transaction(async (tx) => {
+    const newOrder = await prisma.$transaction(async (tx: any) => {
       // Cek apakah meja ini sudah memiliki pesanan aktif yang belum selesai
       const existingOrder = await tx.order.findFirst({
         where: {
